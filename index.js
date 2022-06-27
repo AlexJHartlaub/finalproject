@@ -1,5 +1,4 @@
-// MovieCrudUser
-//xfmJHwESEdq9Utja
+
 const express = require("express");
 const app = express();
 
@@ -13,55 +12,59 @@ const mongoose = require("mongoose");
 const { Router } = require("express");
 const { MongoClient, ObjectId } = require("mongodb");
 
-const mongooseUri = "mongodb+srv://MovieCrudUser:xfmJHwESEdq9Utja@cluster0.zqckn.mongodb.net/movieDatabase"
+const mongooseUri = "mongodb+srv://finalproject:finalproject1@cluster0.dfnld.mongodb.net/vocabDatabase"
 mongoose.connect(mongooseUri, {useNewUrlParser: true}, {useUnifiedTopology: true})
-const movieSchema = {
-	title: String,
-	comments: String,
+const vocabSchema = {
+	hiragana: String,
+	definition: String,
+	kanji: String,
 }
-const Movie = mongoose.model("movie", movieSchema);
-const client = new MongoClient(mongooseUri).db("movieDatabase");
+const Vocab = mongoose.model("vocab", vocabSchema);
+const client = new MongoClient(mongooseUri).db("vocabDatabase");
 
 // Create route called from create.html
 app.post("/create", function(req, res){
-	let newmovie = new Movie({
-		title: req.body.title,
-		comments: req.body.comments
+	let newvocab = new Vocab({
+		hiragana: req.body.hiragana,
+		definition: req.body.definition,
+		kanji: req.body.kanji
 	})
 	
-	newmovie.save();
+	newvocab.save();
 	res.redirect("/");
 })
 
-const rendermovies = (movieArray) => {
-	let text = "Movies Collection:\n\n";
-	movieArray.forEach((movie)=>{
-		text += "Title: " + movie.title  + "\n";
-		text += "Comments: " + movie.comments  + "\n";
-		text += "ID:" + movie._id + "\n\n";
+const rendervocabs = (vocabArray) => {
+	let text = "Vocabs Collection:\n\n";
+	vocabArray.forEach((vocab)=>{
+		text += "Hiragana: " + vocab.hiragana  + "\n";
+		text += "Definition: " + vocab.definition  + "\n";
+		text += "Kanji: " + vocab.kanji  + "\n";
+		text += "ID:" + vocab._id + "\n\n";
 	})
-	text += "Total Count: " + movieArray.length;
+	text += "Total Count: " + vocabArray.length;
 	return text
 }
 
 app.get("/read", function(request, response) {
-	Movie.find({}).then(movies => { 
+	Vocab.find({}).then(vocabs => { 
 		response.type('text/plain');
-		response.send(rendermovies(movies));
+		response.send(rendervocabs(vocabs));
 	})
 })
 
 
 app.post("/delete", function(req, res){
 		const id = req.body.id
-		client.collection("movies").deleteOne({"_id":ObjectId(id)})
+		client.collection("vocabs").deleteOne({"_id":ObjectId(id)})
 		res.redirect("/");
 	})
 	
 app.post("/update", function(req,res){
 		const id = req.body.id
-		const title = req.body.title
-		client.collection("movies").updateOne({"_id":ObjectId(id)},{$set:{"title":title}});
+		const hiragana = req.body.hiragana
+		const definition = req.body.definition
+		client.collection("vocabs").updateOne({"_id":ObjectId(id)},{$set:{"hiragana":hiragana}},{$set:{"definition":definition}});
 		res.redirect("/");
 })
 
